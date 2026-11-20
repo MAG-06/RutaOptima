@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ruta Óptima — Colombia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#13212a; --panel:#1a2b36; --panel2:#213543; --line:#2f4656;
+    --city:#22394a; --cityEdge:#d7e2ea; --txt:#e8eef2; --muted:#93a8b6;
+    --edge:#7f97a8; --you:#ff8a3d; --opt:#3ddc97; --start:#3ddc97; --end:#ff5d73; --gold:#ffd166;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif}
+  button{font:inherit;font-weight:600;font-size:14px;border-radius:10px;border:1px solid var(--line);background:#2a4152;color:var(--txt);padding:10px 14px;cursor:pointer;transition:.15s}
+  button:hover:not(:disabled){filter:brightness(1.15)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--opt);color:#08261a;border-color:transparent}
+  .hidden{display:none!important}
+
+  /* ---------- start screen ---------- */
+  #home{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:48px 20px 32px}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .brand svg{width:44px;height:44px}
+  .brand h1{font-size:40px;margin:0;font-weight:800;letter-spacing:-.5px}
+  .brand h1 span{color:var(--opt)}
+  .tag{color:var(--muted);font-size:16px;text-align:center;max-width:620px;line-height:1.55;margin:6px 0 30px}
+  .how{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:34px}
+  .how div{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13.5px;color:#cfdbe3}
+  .how b{color:var(--gold);margin-right:4px}
+  .pick{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:14px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;width:100%;max-width:960px}
+  .card-city{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s;text-align:left;padding:0;display:flex;flex-direction:column}
+  .card-city:hover{transform:translateY(-4px);border-color:var(--opt);box-shadow:0 12px 30px rgba(0,0,0,.35)}
+  .card-city .thumb{height:170px;background:#152530;display:flex;align-items:center;justify-content:center;padding:10px}
+  .card-city .thumb svg{width:100%;height:100%}
+  .card-city .info{padding:14px 16px 16px}
+  .card-city h3{margin:0;font-size:20px;font-weight:800}
+  .card-city .dep{color:var(--muted);font-size:13px;margin-top:2px}
+  .card-city .meta{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .chip{font-size:12px;padding:4px 9px;border-radius:999px;background:#24394a;color:#cfdbe3}
+  .chip.lvl-1{background:rgba(61,220,151,.15);color:var(--opt)}
+  .chip.lvl-2{background:rgba(255,209,102,.15);color:var(--gold)}
+  .chip.lvl-3{background:rgba(255,93,115,.15);color:var(--end)}
+  .foot{margin-top:34px;color:#6f8797;font-size:12px;text-align:center;line-height:1.6}
+
+  /* ---------- game ---------- */
+  #game{display:grid;grid-template-columns:1fr 330px;grid-template-rows:auto 1fr;height:100vh}
+  header{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+  header h2{font-size:17px;margin:0;font-weight:800}
+  header h2 span{color:var(--opt)}
+  header .sub{color:var(--muted);font-size:13px}
+  header .back{padding:8px 12px;font-size:13px}
+  .mapwrap{position:relative;overflow:hidden;min-height:420px}
+  #map{width:100%;height:100%;display:block;touch-action:manipulation}
+  aside{background:var(--panel);border-left:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:14px;overflow:auto}
+  .card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
+  .od{font-size:15px;font-weight:600;line-height:1.5}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .hint{font-size:13px;color:var(--muted);line-height:1.5}
+  .route ol{margin:0;padding-left:20px;font-size:13.5px;line-height:1.7;max-height:220px;overflow:auto}
+  .route ol li span{color:var(--muted);font-size:12px}
+  .total{display:flex;justify-content:space-between;font-weight:700;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap}
+  .btns .primary{flex:1}
+  .legend{font-size:12px;color:var(--muted);display:grid;gap:6px}
+  .legend i{display:inline-block;width:22px;height:4px;border-radius:2px;vertical-align:middle;margin-right:8px}
+  .credits{font-size:11px;color:#6f8797;line-height:1.5}
+  @media (max-width:880px){
+    #game{grid-template-columns:1fr;grid-template-rows:auto auto auto;height:auto;min-height:100vh}
+    .mapwrap{height:62vh;overflow:auto}
+    #map{width:1050px;height:100%}
+    aside{border-left:0;border-top:1px solid var(--line)}
+    .overlay.show{position:fixed;left:12px;right:12px;bottom:12px;z-index:10}
+    .brand h1{font-size:32px}
+  }
+  /* map styles (sizes scale with --f) */
+  .road-t{stroke:#c9a54a;stroke-width:calc(var(--f)*3);fill:none;opacity:.55}
+  .road-p{stroke:#9fb3c0;stroke-width:calc(var(--f)*2.2);fill:none;opacity:.45}
+  .road-s{stroke:#6f8797;stroke-width:calc(var(--f)*1.4);fill:none;opacity:.45}
+  .city{fill:var(--city);stroke:var(--cityEdge);stroke-width:calc(var(--f)*2.4);stroke-linejoin:round}
+  .edge{stroke:var(--edge);stroke-width:calc(var(--f)*2.2);stroke-dasharray:calc(var(--f)*6) calc(var(--f)*6);opacity:.75}
+  .edge.avail{stroke:#d7e2ea;opacity:1;stroke-dasharray:none;stroke-width:calc(var(--f)*2.6)}
+  .kmbg{fill:#13212a;stroke:#3b5568;stroke-width:calc(var(--f)*1)}
+  .km{fill:#cfdbe3;font-size:calc(var(--f)*12.5px);font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+  .youpath{stroke:var(--you);stroke-width:calc(var(--f)*8);stroke-linecap:round;stroke-linejoin:round;fill:none;opacity:.95}
+  .optpath{stroke:var(--opt);stroke-width:calc(var(--f)*5);stroke-linecap:round;stroke-linejoin:round;fill:none;stroke-dasharray:calc(var(--f)*1) calc(var(--f)*12);filter:drop-shadow(0 0 4px rgba(61,220,151,.8))}
+  .node circle.c{fill:#13212a;stroke:#e8eef2;stroke-width:calc(var(--f)*3)}
+  .node.clickable{cursor:pointer}
+  .node.clickable circle.c{stroke:var(--gold);fill:#3a3420}
+  .node circle.halo{fill:var(--gold);opacity:0}
+  .node.clickable circle.halo{opacity:.2;animation:pulse 1.4s infinite}
+  .node.inpath circle.c{fill:var(--you);stroke:#fff}
+  .node.start circle.c{fill:var(--start);stroke:#fff}
+  .node.end circle.c{fill:var(--end);stroke:#fff}
+  .node text{fill:#fff;font-size:calc(var(--f)*14px);font-weight:600;paint-order:stroke;stroke:#13212a;stroke-width:calc(var(--f)*4px);pointer-events:none}
+  .node text.big{font-size:calc(var(--f)*15.5px);font-weight:800}
+  .node .hit{fill:transparent}
+  @keyframes pulse{0%{opacity:.25}50%{opacity:.05}100%{opacity:.25}}
+  .overlay{display:none}
+  .overlay.show{display:flex}
+  .result{background:rgba(19,33,42,.97);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .result.win{border-color:rgba(61,220,151,.6)} .result.lose{border-color:rgba(255,93,115,.6)}
+  .result h3{margin:0 0 6px;font-size:26px;font-weight:800}
+  .result.win h3{color:var(--opt)} .result.lose h3{color:var(--end)}
+  .result p{margin:4px 0;color:var(--muted);font-size:14px}
+  .result b{color:var(--txt)}
+  .result .btns{justify-content:center;margin-top:10px}
+</style>
+</head>
+<body>
+
+<!-- ================= PANTALLA DE INICIO ================= -->
+<section id="home">
+  <div class="brand">
+    <svg viewBox="0 0 48 48" fill="none"><circle cx="10" cy="36" r="6" fill="#3ddc97"/><circle cx="38" cy="12" r="6" fill="#ff5d73"/><path d="M10 36 L22 30 L26 18 L38 12" stroke="#ff8a3d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="30" r="3.5" fill="#e8eef2"/><circle cx="26" cy="18" r="3.5" fill="#e8eef2"/></svg>
+    <h1>Ruta <span>Óptima</span></h1>
+  </div>
+  <p class="tag">¿Eres capaz de encontrar el camino más corto? Escoge una ciudad de Colombia, traza tu ruta entre dos puntos y descubre si ganaste contra el algoritmo.</p>
+  <div class="how">
+    <div><b>1</b>Escoge un mapa</div>
+    <div><b>2</b>Traza tu ruta punto a punto</div>
+    <div><b>3</b>Compara con la ruta óptima</div>
+  </div>
+  <div class="pick">Selecciona un mapa</div>
+  <div class="cards" id="cards"></div>
+  <div class="foot">Distancias reales por vía calculadas sobre la red vial de OpenStreetMap (© colaboradores de OpenStreetMap).<br>Proyecto de Matemáticas discretas — problema de la ruta más corta.</div>
+</section>
+
+<!-- ================= JUEGO ================= -->
+<section id="game" class="hidden">
+  <header>
+    <button class="back" id="btnBack">← Mapas</button>
+    <h2>Ruta <span>Óptima</span></h2>
+    <div class="sub" id="citySub"></div>
+  </header>
+  <div class="mapwrap">
+    <svg id="map" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+  <aside>
+    <div class="card">
+      <div class="lbl">Reto</div>
+      <div class="od"><span class="dot" style="background:var(--start)"></span><span id="oName"></span><br><span class="dot" style="background:var(--end)"></span><span id="dName"></span></div>
+    </div>
+    <div class="overlay" id="overlay">
+      <div class="result" id="result">
+        <h3 id="rTitle"></h3>
+        <p id="rYou"></p>
+        <p id="rOpt"></p>
+        <div class="btns"><button class="primary" id="btnNext">Otro reto</button><button id="btnRetry">Intentar de nuevo</button></div>
+      </div>
+    </div>
+    <div class="hint" id="hint"></div>
+    <div class="card route">
+      <div class="lbl">Tu ruta</div>
+      <ol id="routeList"></ol>
+      <div class="total"><span>Total</span><span id="total">0,0 km</span></div>
+    </div>
+    <div class="btns">
+      <button id="btnUndo">Deshacer</button>
+      <button id="btnReset">Reiniciar</button>
+      <button class="primary" id="btnCheck" disabled>Comprobar</button>
+    </div>
+    <div class="legend">
+      <div><i style="background:var(--you)"></i>Tu ruta</div>
+      <div><i style="background:var(--opt)"></i>Ruta óptima (al comprobar)</div>
+      <div><i style="background:#d7e2ea"></i>Tramos disponibles · número = km por vía</div>
+    </div>
+    <div class="credits">Distancias reales por carretera calculadas sobre la red vial de OpenStreetMap. Proyecto de Matemáticas discretas — problema de la ruta más corta.</div>
+  </aside>
+</section>
+
+<script>
+const CITIES = __CITIES__;
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p && p.appendChild(e); return e; };
+const fmt = v => v.toFixed(1).replace('.', ',') + ' km';
+const pathD = (pts, close) => 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('L') + (close ? 'Z' : '');
+
+/* ---------- start screen ---------- */
+function bounds(C) {
+  const xs = C.nodes.map(n => n.x), ys = C.nodes.map(n => n.y);
+  return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+}
+CITIES.forEach((C, ci) => {
+  const b = document.createElement('button'); b.className = 'card-city';
+  const [x0, y0, x1, y1] = bounds(C); const pad = 60;
+  const lvl = C.nodes.length <= 16 ? 1 : C.nodes.length <= 18 ? 2 : 3;
+  const lvlTxt = ['', 'Fácil', 'Medio', 'Difícil'][lvl];
+  b.innerHTML = `<div class="thumb"></div><div class="info"><h3>${C.city}</h3><div class="dep">${C.dept}</div><div class="meta"><span class="chip lvl-${lvl}">${lvlTxt}</span><span class="chip">${C.nodes.length} puntos</span><span class="chip">${C.edges.length} tramos</span></div></div>`;
+  const s = el('svg', {viewBox: `${x0 - pad} ${y0 - pad} ${x1 - x0 + 2 * pad} ${y1 - y0 + 2 * pad}`, preserveAspectRatio: 'xMidYMid meet'});
+  const f = Math.max(x1 - x0, y1 - y0) / 700;
+  C.outline.forEach(p => el('path', {d: pathD(p, true), fill: '#22394a', stroke: '#9fb3c0', 'stroke-width': 3 * f}, s));
+  C.edges.forEach(([a, bb]) => el('line', {x1: C.nodes[a].x, y1: C.nodes[a].y, x2: C.nodes[bb].x, y2: C.nodes[bb].y, stroke: '#7f97a8', 'stroke-width': 2.5 * f, 'stroke-dasharray': `${7 * f} ${6 * f}`}, s));
+  C.nodes.forEach(n => el('circle', {cx: n.x, cy: n.y, r: 9 * f, fill: '#ffd166'}, s));
+  b.querySelector('.thumb').appendChild(s);
+  b.onclick = () => openCity(ci);
+  $('cards').appendChild(b);
+});
+
+/* ---------- game ---------- */
+let C, N, adj, gYou, gOpt, edgeEls, nodeEls, POOL, O, D, path, best, done, lastIdx;
+function dijkstra(s, t, A = adj) {
+  const d = N.map(() => Infinity), p = N.map(() => -1), used = N.map(() => false); d[s] = 0;
+  for (;;) { let u = -1; for (let i = 0; i < N.length; i++) if (!used[i] && (u < 0 || d[i] < d[u])) u = i;
+    if (u < 0 || d[u] === Infinity) break; used[u] = true;
+    for (const e of A[u]) if (d[u] + e.w < d[e.to] - 1e-9) { d[e.to] = d[u] + e.w; p[e.to] = u; } }
+  const path = []; if (d[t] < Infinity) for (let v = t; v >= 0; v = p[v]) path.unshift(v);
+  return {dist: d[t], path};
+}
+function secondBest(s, t, base) {
+  let alt = Infinity;
+  for (let k = 0; k < base.length - 1; k++) { const a = base[k], b = base[k + 1];
+    const A = adj.map((x, i) => (i === a ? x.filter(e => e.to !== b) : i === b ? x.filter(e => e.to !== a) : x));
+    alt = Math.min(alt, dijkstra(s, t, A).dist); }
+  return alt;
+}
+const PLACED = [];
+function placeLabel(i) {
+  const n = N[i]; const opts = [[16, 5, 'start'], [-16, 5, 'end'], [0, -18, 'middle'], [0, 28, 'middle'], [14, -14, 'start'], [-14, -14, 'end'], [14, 22, 'start'], [-14, 22, 'end']];
+  const w = n.name.length * 8 * C.f, h = 14 * C.f; let best = null, bs = -1;
+  const mids = C.edges.map(([a, b]) => [(N[a].x + N[b].x) / 2, (N[a].y + N[b].y) / 2]);
+  for (const [dx, dy, an] of opts) {
+    const ox = n.x + dx * C.f, oy = n.y + dy * C.f; const cx = an === 'start' ? ox + w / 2 : an === 'end' ? ox - w / 2 : ox; const cy = oy - h / 3;
+    let sc = Infinity;
+    N.forEach((m, j) => { if (j !== i) { const ddx = Math.max(0, Math.abs(m.x - cx) - w / 2), ddy = Math.max(0, Math.abs(m.y - cy) - h / 2); sc = Math.min(sc, Math.hypot(ddx, ddy)); } });
+    mids.forEach(([mx, my]) => { const ddx = Math.max(0, Math.abs(mx - cx) - w / 2), ddy = Math.max(0, Math.abs(my - cy) - h / 2); sc = Math.min(sc, Math.hypot(ddx, ddy) + 4 * C.f); });
+    PLACED.forEach(r => { const ddx = Math.max(0, Math.abs(r[0] - cx) - (w + r[2]) / 2), ddy = Math.max(0, Math.abs(r[1] - cy) - (h + r[3]) / 2); sc = Math.min(sc, Math.hypot(ddx, ddy) - 6 * C.f); });
+    if (sc > bs + 1e-6) { bs = sc; best = [ox, oy, an, cx, cy, w, h]; }
+  }
+  PLACED.push([best[3], best[4], best[5], best[6]]);
+  return best;
+}
+function openCity(ci) {
+  C = CITIES[ci]; N = C.nodes; lastIdx = -1;
+  adj = N.map(() => []); C.edges.forEach(([a, b, w], i) => { adj[a].push({to: b, w, i}); adj[b].push({to: a, w, i}); });
+  const [x0, y0, x1, y1] = bounds(C);
+  C.f = Math.max(x1 - x0, y1 - y0) / 760;
+  const pad = 70 * C.f;
+  PLACED.length = 0;
+  $('home').classList.add('hidden'); $('game').classList.remove('hidden');
+  const svg = $('map'); svg.innerHTML = '';
+  svg.setAttribute('viewBox', `${x0 - pad - 60 * C.f} ${y0 - pad} ${x1 - x0 + 2 * pad + 160 * C.f} ${y1 - y0 + 2 * pad}`);
+  svg.style.setProperty('--f', C.f);
+  const gBase = el('g', {}, svg), gEdges = el('g', {}, svg); gYou = el('g', {}, svg); gOpt = el('g', {}, svg); const gKm = el('g', {}, svg), gNodes = el('g', {}, svg);
+  C.outline.forEach(p => el('path', {class: 'city', d: pathD(p, true)}, gBase));
+  C.roads.forEach(([t, pts]) => el('path', {class: 'road-' + t, d: pathD(pts)}, gBase));
+  edgeEls = C.edges.map(([a, b, w]) => {
+    const A = N[a], B = N[b];
+    const line = el('line', {class: 'edge', x1: A.x, y1: A.y, x2: B.x, y2: B.y}, gEdges);
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, txt = w.toFixed(1).replace('.', ','), wd = (10 + txt.length * 7.5) * C.f;
+    el('rect', {class: 'kmbg', x: mx - wd / 2, y: my - 10 * C.f, width: wd, height: 20 * C.f, rx: 6 * C.f}, gKm);
+    el('text', {class: 'km', x: mx, y: my + 0.5 * C.f}, gKm).textContent = txt;
+    return line;
+  });
+  nodeEls = N.map((n, i) => {
+    const g = el('g', {class: 'node'}, gNodes);
+    el('circle', {class: 'halo', cx: n.x, cy: n.y, r: 20 * C.f}, g);
+    el('circle', {class: 'c', cx: n.x, cy: n.y, r: 9 * C.f}, g);
+    el('circle', {class: 'hit', cx: n.x, cy: n.y, r: 20 * C.f}, g);
+    const [lx, ly, an] = placeLabel(i);
+    const t = el('text', {x: lx, y: ly, 'text-anchor': an}, g); t.textContent = n.name;
+    g.addEventListener('click', () => clickNode(i));
+    return {g, t};
+  });
+  const bb = gNodes.getBBox(), pp = 30 * C.f;
+  svg.setAttribute('viewBox', `${bb.x - pp} ${bb.y - pp} ${bb.width + 2 * pp} ${bb.height + 2 * pp}`);
+  POOL = [];
+  const minT = N.length <= 16 ? 4 : 5;
+  for (let s = 0; s < N.length; s++) for (let t = 0; t < N.length; t++) {
+    if (s === t) continue; const r = dijkstra(s, t);
+    if (r.path.length < minT) continue;
+    if (secondBest(s, t, r.path) - r.dist >= 0.3) POOL.push([s, t]);
+  }
+  $('citySub').textContent = `${C.city}, ${C.dept} · ¿Puedes encontrar el camino más corto?`;
+  document.title = `Ruta Óptima — ${C.city}`;
+  window.scrollTo(0, 0);
+  newPuzzle();
+}
+function newPuzzle() {
+  let k; do { k = Math.floor(Math.random() * POOL.length); } while (POOL.length > 1 && k === lastIdx);
+  lastIdx = k; [O, D] = POOL[k]; best = dijkstra(O, D); reset();
+}
+function reset() { path = [O]; done = false; $('overlay').classList.remove('show'); gOpt.innerHTML = ''; render(); }
+const edgeW = (a, b) => { const e = adj[a].find(e => e.to === b); return e ? e.w : null; };
+const total = () => { let s = 0; for (let k = 0; k < path.length - 1; k++) s += edgeW(path[k], path[k + 1]); return s; };
+function clickNode(i) {
+  if (done) return;
+  const last = path[path.length - 1];
+  if (path.length > 1 && i === path[path.length - 2]) { path.pop(); render(); return; }
+  if (last === D || edgeW(last, i) === null || path.includes(i)) return;
+  path.push(i); render();
+}
+const poly = (p, cls, parent) => { if (p.length > 1) el('path', {class: cls, d: 'M' + p.map(i => N[i].x + ',' + N[i].y).join('L')}, parent); };
+function render() {
+  const last = path[path.length - 1];
+  const avail = new Set(done || last === D ? [] : adj[last].filter(e => !path.includes(e.to)).map(e => e.to));
+  edgeEls.forEach((ln, idx) => { const [a, b] = C.edges[idx]; ln.classList.toggle('avail', (a === last && avail.has(b)) || (b === last && avail.has(a))); });
+  nodeEls.forEach(({g, t}, i) => {
+    g.setAttribute('class', 'node' + (i === O ? ' start' : i === D ? ' end' : path.includes(i) ? ' inpath' : '') + (avail.has(i) ? ' clickable' : ''));
+    t.setAttribute('class', (i === O || i === D) ? 'big' : '');
+  });
+  gYou.innerHTML = ''; poly(path, 'youpath', gYou);
+  $('oName').textContent = N[O].name; $('dName').textContent = N[D].name;
+  const ol = $('routeList'); ol.innerHTML = '';
+  path.forEach((i, k) => { const li = document.createElement('li'); li.innerHTML = N[i].name + (k ? ' <span>+' + fmt(edgeW(path[k - 1], i)) + '</span>' : ''); ol.appendChild(li); });
+  $('total').textContent = fmt(total());
+  $('btnCheck').disabled = !(last === D) || done;
+  $('btnUndo').disabled = path.length < 2 || done;
+  $('hint').textContent = last === D && !done ? '¡Llegaste! Dale a "Comprobar" para ver si es la ruta más corta.' : 'Arranca en el punto verde. Toca los puntos amarillos para avanzar por las vías y llegar al punto rojo usando la ruta más corta. Toca el punto anterior para devolverte.';
+}
+function check() {
+  done = true; render(); poly(best.path, 'optpath', gOpt);
+  const you = total(), win = Math.abs(you - best.dist) < 0.05;
+  $('result').className = 'result ' + (win ? 'win' : 'lose');
+  $('rTitle').textContent = win ? '¡Ganaste! 🏆' : 'Perdiste 😬';
+  $('rYou').innerHTML = 'Tu ruta: <b>' + fmt(you) + '</b>';
+  $('rOpt').innerHTML = win ? 'Encontraste la ruta más corta.' : 'Ruta óptima: <b>' + fmt(best.dist) + '</b> (te pasaste ' + fmt(you - best.dist) + ')';
+  $('btnRetry').style.display = win ? 'none' : '';
+  $('overlay').classList.add('show');
+}
+$('btnUndo').onclick = () => { if (path.length > 1) { path.pop(); render(); } };
+$('btnReset').onclick = reset;
+$('btnCheck').onclick = check;
+$('btnNext').onclick = newPuzzle;
+$('btnRetry').onclick = reset;
+$('btnBack').onclick = () => { $('game').classList.add('hidden'); $('home').classList.remove('hidden'); document.title = 'Ruta Óptima — Colombia'; };
+</script>
+</body>
+</html>
