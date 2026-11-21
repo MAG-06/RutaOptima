@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ruta Óptima — Colombia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#13212a; --panel:#1a2b36; --panel2:#213543; --line:#2f4656;
     --city:#22394a; --cityEdge:#d7e2ea; --txt:#e8eef2; --muted:#93a8b6;
-    --edge:#7f97a8; --you:#ff8a3d; --opt:#3ddc97; --start:#3ddc97; --end:#ff5d73; --gold:#ffd166;
+    --edge:#7f97a8; --you:#ff8a3d; --opt:#3ddc97; --start:#3ddc97; --end:#ff5d73; --gold:#ffd166; --algo:#5ab0ff;
   }
   *{box-sizing:border-box}
   html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif}
@@ -18,7 +18,9 @@
   button:hover:not(:disabled){filter:brightness(1.15)}
   button:disabled{opacity:.4;cursor:not-allowed}
   button.primary{background:var(--opt);color:#08261a;border-color:transparent}
+  button.blue{background:var(--algo);color:#06223d;border-color:transparent}
   .hidden{display:none!important}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
 
   /* ---------- start screen ---------- */
   #home{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:48px 20px 32px}
@@ -26,7 +28,8 @@
   .brand svg{width:44px;height:44px}
   .brand h1{font-size:40px;margin:0;font-weight:800;letter-spacing:-.5px}
   .brand h1 span{color:var(--opt)}
-  .tag{color:var(--muted);font-size:16px;text-align:center;max-width:620px;line-height:1.55;margin:6px 0 30px}
+  .edu{display:inline-block;margin-left:6px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(90,176,255,.15);color:var(--algo);border-radius:999px;padding:4px 10px;vertical-align:middle}
+  .tag{color:var(--muted);font-size:16px;text-align:center;max-width:660px;line-height:1.55;margin:6px 0 30px}
   .how{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:34px}
   .how div{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13.5px;color:#cfdbe3}
   .how b{color:var(--gold);margin-right:4px}
@@ -44,37 +47,61 @@
   .chip.lvl-1{background:rgba(61,220,151,.15);color:var(--opt)}
   .chip.lvl-2{background:rgba(255,209,102,.15);color:var(--gold)}
   .chip.lvl-3{background:rgba(255,93,115,.15);color:var(--end)}
-  .foot{margin-top:34px;color:#6f8797;font-size:12px;text-align:center;line-height:1.6}
+  .homebtns{margin-top:26px;display:flex;gap:10px}
+  .foot{margin-top:28px;color:#6f8797;font-size:12px;text-align:center;line-height:1.6}
 
   /* ---------- game ---------- */
-  #game{display:grid;grid-template-columns:1fr 330px;grid-template-rows:auto 1fr;height:100vh}
+  #game{display:grid;grid-template-columns:1fr 400px;grid-template-rows:auto 1fr;height:100vh}
   header{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
   header h2{font-size:17px;margin:0;font-weight:800}
   header h2 span{color:var(--opt)}
-  header .sub{color:var(--muted);font-size:13px}
-  header .back{padding:8px 12px;font-size:13px}
+  header .sub{color:var(--muted);font-size:13px;flex:1}
+  header button{padding:8px 12px;font-size:13px}
   .mapwrap{position:relative;overflow:hidden;min-height:420px}
   #map{width:100%;height:100%;display:block;touch-action:manipulation}
-  aside{background:var(--panel);border-left:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:14px;overflow:auto}
-  .card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .maptip{position:absolute;left:16px;bottom:16px;max-width:520px;background:rgba(19,33,42,.92);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13.5px;line-height:1.5;color:#dfe8ee;pointer-events:none}
+  .maptip b{color:var(--gold)}
+  aside{background:var(--panel);border-left:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:12px;overflow:auto}
+  .card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
   .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
-  .od{font-size:15px;font-weight:600;line-height:1.5}
+  .od{font-size:14.5px;font-weight:600;line-height:1.5}
   .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
-  .hint{font-size:13px;color:var(--muted);line-height:1.5}
-  .route ol{margin:0;padding-left:20px;font-size:13.5px;line-height:1.7;max-height:220px;overflow:auto}
-  .route ol li span{color:var(--muted);font-size:12px}
-  .total{display:flex;justify-content:space-between;font-weight:700;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
   .btns{display:flex;gap:8px;flex-wrap:wrap}
-  .btns .primary{flex:1}
+  .btns .primary,.btns .blue{flex:1}
+  .tabs{display:flex;gap:4px;background:#14232d;border-radius:10px;padding:4px}
+  .tabs button{flex:1;padding:8px 6px;font-size:13px;background:transparent;border:0;color:var(--muted)}
+  .tabs button.on{background:var(--panel2);color:var(--txt)}
+  .pane{display:flex;flex-direction:column;gap:10px}
+  .explain{font-size:13px;color:#c6d3dc;line-height:1.55}
+  .explain b{color:var(--txt)}
+  .route ol{margin:0;padding-left:20px;font-size:13.5px;line-height:1.7;max-height:180px;overflow:auto}
+  .route ol li span{color:var(--muted);font-size:12px}
+  .calc{font-size:13px;line-height:1.7;background:#14232d;border-radius:8px;padding:8px 10px;word-break:break-word}
+  .calc .z{color:var(--you);font-weight:700}
+  .total{display:flex;justify-content:space-between;font-weight:700;margin-top:6px;padding-top:6px;border-top:1px solid var(--line)}
+  .next{font-size:13px;line-height:1.6}
+  .next div{display:flex;justify-content:space-between;border-bottom:1px dashed #2f4656;padding:3px 0}
+  .next div span:last-child{color:var(--gold)}
+  table.t{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.t th{color:var(--muted);font-weight:600;text-align:left;padding:4px 4px;border-bottom:1px solid var(--line)}
+  table.t td{padding:4px 4px;border-bottom:1px solid #263b4a}
+  table.t td.n{text-align:center}
+  .ok{color:var(--opt);font-weight:700} .bad{color:var(--end);font-weight:700}
+  tr.cur td{background:rgba(90,176,255,.12)}
+  .xlist{font-size:12.5px;line-height:1.7;max-height:130px;overflow:auto}
   .legend{font-size:12px;color:var(--muted);display:grid;gap:6px}
   .legend i{display:inline-block;width:22px;height:4px;border-radius:2px;vertical-align:middle;margin-right:8px}
   .credits{font-size:11px;color:#6f8797;line-height:1.5}
+  .stepbox{font-size:13px;line-height:1.6;background:#14232d;border-radius:8px;padding:10px;min-height:110px}
+  .stepbox b{color:var(--algo)}
+  .stepctl{display:flex;gap:6px}
+  .stepctl button{flex:1;padding:8px 6px;font-size:13px}
   @media (max-width:880px){
     #game{grid-template-columns:1fr;grid-template-rows:auto auto auto;height:auto;min-height:100vh}
     .mapwrap{height:62vh;overflow:auto}
     #map{width:1050px;height:100%}
+    .maptip{position:sticky;left:8px;bottom:8px}
     aside{border-left:0;border-top:1px solid var(--line)}
-    .overlay.show{position:fixed;left:12px;right:12px;bottom:12px;z-index:10}
     .brand h1{font-size:32px}
   }
   /* map styles (sizes scale with --f) */
@@ -84,10 +111,12 @@
   .city{fill:var(--city);stroke:var(--cityEdge);stroke-width:calc(var(--f)*2.4);stroke-linejoin:round}
   .edge{stroke:var(--edge);stroke-width:calc(var(--f)*2.2);stroke-dasharray:calc(var(--f)*6) calc(var(--f)*6);opacity:.75}
   .edge.avail{stroke:#d7e2ea;opacity:1;stroke-dasharray:none;stroke-width:calc(var(--f)*2.6)}
+  .edge.relax{stroke:var(--algo);opacity:1;stroke-dasharray:none;stroke-width:calc(var(--f)*4)}
   .kmbg{fill:#13212a;stroke:#3b5568;stroke-width:calc(var(--f)*1)}
   .km{fill:#cfdbe3;font-size:calc(var(--f)*12.5px);font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none}
   .youpath{stroke:var(--you);stroke-width:calc(var(--f)*8);stroke-linecap:round;stroke-linejoin:round;fill:none;opacity:.95}
   .optpath{stroke:var(--opt);stroke-width:calc(var(--f)*5);stroke-linecap:round;stroke-linejoin:round;fill:none;stroke-dasharray:calc(var(--f)*1) calc(var(--f)*12);filter:drop-shadow(0 0 4px rgba(61,220,151,.8))}
+  .treepath{stroke:var(--algo);stroke-width:calc(var(--f)*3);fill:none;opacity:.55}
   .node circle.c{fill:#13212a;stroke:#e8eef2;stroke-width:calc(var(--f)*3)}
   .node.clickable{cursor:pointer}
   .node.clickable circle.c{stroke:var(--gold);fill:#3a3420}
@@ -96,82 +125,167 @@
   .node.inpath circle.c{fill:var(--you);stroke:#fff}
   .node.start circle.c{fill:var(--start);stroke:#fff}
   .node.end circle.c{fill:var(--end);stroke:#fff}
+  .node.visited circle.c{fill:#1f4a6e;stroke:var(--algo)}
+  .node.current circle.c{fill:var(--algo);stroke:#fff}
+  .node.current circle.halo{fill:var(--algo);opacity:.3}
   .node text{fill:#fff;font-size:calc(var(--f)*14px);font-weight:600;paint-order:stroke;stroke:#13212a;stroke-width:calc(var(--f)*4px);pointer-events:none}
   .node text.big{font-size:calc(var(--f)*15.5px);font-weight:800}
+  .node text.acc{fill:var(--you);font-size:calc(var(--f)*13px);font-weight:800;text-anchor:middle}
+  .node text.dist{fill:var(--algo);font-size:calc(var(--f)*13px);font-weight:800;text-anchor:middle}
   .node .hit{fill:transparent}
   @keyframes pulse{0%{opacity:.25}50%{opacity:.05}100%{opacity:.25}}
-  .overlay{display:none}
-  .overlay.show{display:flex}
-  .result{background:rgba(19,33,42,.97);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .result{background:rgba(19,33,42,.97);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-align:center}
   .result.win{border-color:rgba(61,220,151,.6)} .result.lose{border-color:rgba(255,93,115,.6)}
-  .result h3{margin:0 0 6px;font-size:26px;font-weight:800}
+  .result h3{margin:0 0 4px;font-size:24px;font-weight:800}
   .result.win h3{color:var(--opt)} .result.lose h3{color:var(--end)}
-  .result p{margin:4px 0;color:var(--muted);font-size:14px}
+  .result p{margin:3px 0;color:var(--muted);font-size:13.5px}
   .result b{color:var(--txt)}
-  .result .btns{justify-content:center;margin-top:10px}
+  .result .btns{justify-content:center;margin-top:8px}
+
+  /* ---------- tutorial ---------- */
+  #tuto{position:fixed;inset:0;background:rgba(8,15,20,.72);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .tbox{background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:560px;width:100%;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .tbox .step{font-size:12px;color:var(--algo);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  .tbox h3{margin:6px 0 10px;font-size:22px}
+  .tbox p{margin:0 0 10px;color:#cfdbe3;line-height:1.6;font-size:14.5px}
+  .tbox svg{width:100%;height:150px;background:#152530;border-radius:12px;margin:6px 0 12px}
+  .tdots{display:flex;gap:6px;justify-content:center;margin:6px 0 14px}
+  .tdots i{width:8px;height:8px;border-radius:50%;background:#2f4656}
+  .tdots i.on{background:var(--algo)}
+  .tbox .btns{justify-content:space-between}
 </style>
 </head>
 <body>
 
-<!-- ================= PANTALLA DE INICIO ================= -->
+<!-- ================= INICIO ================= -->
 <section id="home">
   <div class="brand">
     <svg viewBox="0 0 48 48" fill="none"><circle cx="10" cy="36" r="6" fill="#3ddc97"/><circle cx="38" cy="12" r="6" fill="#ff5d73"/><path d="M10 36 L22 30 L26 18 L38 12" stroke="#ff8a3d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="30" r="3.5" fill="#e8eef2"/><circle cx="26" cy="18" r="3.5" fill="#e8eef2"/></svg>
-    <h1>Ruta <span>Óptima</span></h1>
+    <h1>Ruta <span>Óptima</span></h1><span class="edu">Modo educativo</span>
   </div>
-  <p class="tag">¿Eres capaz de encontrar el camino más corto? Escoge una ciudad de Colombia, traza tu ruta entre dos puntos y descubre si ganaste contra el algoritmo.</p>
+  <p class="tag">Aprende cómo se encuentra el camino más corto en una red. Traza tu ruta entre dos puntos de una ciudad de Colombia, mira el cálculo en vivo como en el modelo de programación lineal y luego observa, paso a paso, cómo el algoritmo encuentra la ruta óptima.</p>
   <div class="how">
     <div><b>1</b>Escoge un mapa</div>
-    <div><b>2</b>Traza tu ruta punto a punto</div>
-    <div><b>3</b>Compara con la ruta óptima</div>
+    <div><b>2</b>Traza tu ruta y mira el cálculo</div>
+    <div><b>3</b>Compara con la óptima</div>
+    <div><b>4</b>Mira el algoritmo paso a paso</div>
   </div>
   <div class="pick">Selecciona un mapa</div>
   <div class="cards" id="cards"></div>
+  <div class="homebtns"><button id="btnTutoHome">📘 Ver tutorial</button></div>
   <div class="foot">Distancias reales por vía calculadas sobre la red vial de OpenStreetMap (© colaboradores de OpenStreetMap).<br>Proyecto de Matemáticas discretas — problema de la ruta más corta.</div>
 </section>
 
 <!-- ================= JUEGO ================= -->
 <section id="game" class="hidden">
   <header>
-    <button class="back" id="btnBack">← Mapas</button>
+    <button id="btnBack">← Mapas</button>
     <h2>Ruta <span>Óptima</span></h2>
     <div class="sub" id="citySub"></div>
+    <button id="btnTuto">📘 Tutorial</button>
   </header>
   <div class="mapwrap">
     <svg id="map" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="maptip" id="maptip"></div>
   </div>
   <aside>
     <div class="card">
       <div class="lbl">Reto</div>
       <div class="od"><span class="dot" style="background:var(--start)"></span><span id="oName"></span><br><span class="dot" style="background:var(--end)"></span><span id="dName"></span></div>
     </div>
-    <div class="overlay" id="overlay">
-      <div class="result" id="result">
-        <h3 id="rTitle"></h3>
-        <p id="rYou"></p>
-        <p id="rOpt"></p>
-        <div class="btns"><button class="primary" id="btnNext">Otro reto</button><button id="btnRetry">Intentar de nuevo</button></div>
+    <div class="result hidden" id="result">
+      <h3 id="rTitle"></h3>
+      <p id="rYou"></p>
+      <p id="rOpt"></p>
+      <div class="btns"><button class="blue" id="btnAlgo">Ver el algoritmo paso a paso</button></div>
+      <div class="btns" style="margin-top:6px"><button class="primary" id="btnNext">Otro reto</button><button id="btnRetry">Intentar de nuevo</button></div>
+    </div>
+    <div class="tabs" id="tabs">
+      <button data-t="ruta" class="on">Tu ruta</button>
+      <button data-t="modelo">Modelo</button>
+      <button data-t="algo">Algoritmo</button>
+    </div>
+
+    <!-- TAB: Tu ruta -->
+    <div class="pane" id="pane-ruta">
+      <div class="card route">
+        <div class="lbl">Tu ruta</div>
+        <ol id="routeList"></ol>
+        <div class="lbl" style="margin-top:8px">Cálculo de la distancia</div>
+        <div class="calc mono" id="calc"></div>
+        <div class="total"><span>Total</span><span id="total">0,0 km</span></div>
+      </div>
+      <div class="card" id="nextCard">
+        <div class="lbl">¿A dónde puedes ir ahora?</div>
+        <div class="explain" style="margin-bottom:6px">Si avanzas a cada vecino, tu total quedaría así:</div>
+        <div class="next mono" id="nextList"></div>
+      </div>
+      <div class="btns">
+        <button id="btnUndo">Deshacer</button>
+        <button id="btnReset">Reiniciar</button>
+        <button class="primary" id="btnCheck" disabled>Comprobar</button>
       </div>
     </div>
-    <div class="hint" id="hint"></div>
-    <div class="card route">
-      <div class="lbl">Tu ruta</div>
-      <ol id="routeList"></ol>
-      <div class="total"><span>Total</span><span id="total">0,0 km</span></div>
+
+    <!-- TAB: Modelo -->
+    <div class="pane hidden" id="pane-modelo">
+      <div class="card">
+        <div class="lbl">1 · Variables de decisión</div>
+        <div class="explain">Cada tramo es un <b>interruptor</b> x<sub>ij</sub>: vale <b>1</b> si lo usas y <b>0</b> si no. Este mapa tiene <b id="nArcs"></b> variables; tu ruta tiene <b id="nOnes"></b> en 1.</div>
+        <div class="xlist mono" id="xlist" style="margin-top:6px"></div>
+      </div>
+      <div class="card">
+        <div class="lbl">2 · Función objetivo</div>
+        <div class="explain">Se suman los km de los tramos encendidos. El Solver busca que esto sea lo <b>mínimo</b> posible.</div>
+        <div class="calc mono" id="zcalc" style="margin-top:6px"></div>
+      </div>
+      <div class="card">
+        <div class="lbl">3 · Restricciones de flujo (sale − entra)</div>
+        <div class="explain">En cada punto: el origen debe dar <b>1</b>, el destino <b>−1</b> y los demás <b>0</b> (si entras, sales).</div>
+        <table class="t" style="margin-top:6px"><thead><tr><th>Nodo</th><th class="n">Sale</th><th class="n">Entra</th><th class="n">Flujo</th><th class="n">Debe</th><th class="n"></th></tr></thead><tbody id="flowBody"></tbody></table>
+        <div class="explain" id="flowNote" style="margin-top:6px"></div>
+      </div>
     </div>
-    <div class="btns">
-      <button id="btnUndo">Deshacer</button>
-      <button id="btnReset">Reiniciar</button>
-      <button class="primary" id="btnCheck" disabled>Comprobar</button>
+
+    <!-- TAB: Algoritmo -->
+    <div class="pane hidden" id="pane-algo">
+      <div class="card">
+        <div class="lbl">¿Cómo encuentra la ruta óptima? (Dijkstra)</div>
+        <div class="explain">1. Arranca en el origen con 0 km.<br>2. Toma el punto <b>no revisado más cercano</b>.<br>3. Mira sus vecinos: si llegar por aquí es más corto, <b>actualiza</b> su distancia.<br>4. Repite hasta revisar el destino.</div>
+      </div>
+      <div class="stepbox" id="stepbox">Comprueba tu ruta (o dale a "Empezar") para ver al algoritmo resolver este reto paso a paso.</div>
+      <div class="stepctl">
+        <button id="sPrev">Atrás</button>
+        <button class="blue" id="sNext">Empezar</button>
+        <button id="sAuto">Auto</button>
+        <button id="sEnd">Final</button>
+      </div>
+      <div class="card">
+        <div class="lbl">Tabla de distancias</div>
+        <table class="t"><thead><tr><th>Punto</th><th class="n">Distancia</th><th>Viene de</th><th class="n">Estado</th></tr></thead><tbody id="algoBody"></tbody></table>
+      </div>
     </div>
+
     <div class="legend">
-      <div><i style="background:var(--you)"></i>Tu ruta</div>
+      <div><i style="background:var(--you)"></i>Tu ruta (el número naranja = km acumulados)</div>
       <div><i style="background:var(--opt)"></i>Ruta óptima (al comprobar)</div>
+      <div><i style="background:var(--algo)"></i>Algoritmo paso a paso</div>
       <div><i style="background:#d7e2ea"></i>Tramos disponibles · número = km por vía</div>
     </div>
     <div class="credits">Distancias reales por carretera calculadas sobre la red vial de OpenStreetMap. Proyecto de Matemáticas discretas — problema de la ruta más corta.</div>
   </aside>
 </section>
+
+<!-- ================= TUTORIAL ================= -->
+<div id="tuto" class="hidden">
+  <div class="tbox">
+    <div class="step" id="tStep"></div>
+    <h3 id="tTitle"></h3>
+    <div id="tBody"></div>
+    <div class="tdots" id="tDots"></div>
+    <div class="btns"><button id="tSkip">Saltar</button><div style="display:flex;gap:8px"><button id="tPrev">Atrás</button><button class="blue" id="tNextBtn">Siguiente</button></div></div>
+  </div>
+</div>
 
 <script>
 const CITIES = __CITIES__;
@@ -179,7 +293,35 @@ const NS = 'http://www.w3.org/2000/svg';
 const $ = id => document.getElementById(id);
 const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p && p.appendChild(e); return e; };
 const fmt = v => v.toFixed(1).replace('.', ',') + ' km';
+const n1 = v => v.toFixed(1).replace('.', ',');
 const pathD = (pts, close) => 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('L') + (close ? 'Z' : '');
+
+/* ---------- tutorial ---------- */
+const MINI = `<svg viewBox="0 0 520 150"><g stroke="#7f97a8" stroke-width="3" stroke-dasharray="7 6"><line x1="60" y1="110" x2="200" y2="40"/><line x1="60" y1="110" x2="230" y2="120"/><line x1="230" y1="120" x2="200" y2="40"/><line x1="200" y1="40" x2="400" y2="50"/><line x1="230" y1="120" x2="400" y2="50"/><line x1="400" y1="50" x2="470" y2="115"/></g>
+<g font-family="Inter" font-size="14" font-weight="700" fill="#cfdbe3" text-anchor="middle"><text x="118" y="66">4</text><text x="145" y="128">2</text><text x="226" y="82">1</text><text x="300" y="36">5</text><text x="325" y="100">8</text><text x="452" y="78">3</text></g>
+<circle cx="60" cy="110" r="11" fill="#3ddc97"/><circle cx="200" cy="40" r="10" fill="#13212a" stroke="#e8eef2" stroke-width="3"/><circle cx="230" cy="120" r="10" fill="#13212a" stroke="#e8eef2" stroke-width="3"/><circle cx="400" cy="50" r="10" fill="#13212a" stroke="#e8eef2" stroke-width="3"/><circle cx="470" cy="115" r="11" fill="#ff5d73"/>
+<g font-family="Inter" font-size="13" fill="#fff" font-weight="600"><text x="40" y="140">A (inicio)</text><text x="190" y="22">B</text><text x="240" y="143">C</text><text x="405" y="30">D</text><text x="440" y="143">E (meta)</text></g></svg>`;
+const TUTO = [
+  {t: 'La ciudad como una red', b: `<p>Para resolver el problema, el mapa se convierte en una <b>red</b>: cada lugar es un <b>nodo</b> (punto) y cada vía entre dos lugares es un <b>arco</b> (línea) con su distancia en km.</p>${MINI}<p>Si dos puntos no tienen línea entre ellos, no puedes ir directo de uno a otro.</p>`},
+  {t: 'El objetivo', b: `<p>Ir del punto <b style="color:#3ddc97">verde</b> al <b style="color:#ff5d73">rojo</b> recorriendo la <b>menor distancia total</b>.</p><p>En el ejemplo, de A a E: A→C→B→D→E = 2+1+5+3 = <b>11 km</b> le gana a A→B→D→E = 4+5+3 = 12 km. ¡El camino con menos paradas no siempre es el más corto!</p>`},
+  {t: 'Cómo jugar', b: `<p>Arrancas en el punto verde. Los puntos <b style="color:#ffd166">amarillos</b> son los vecinos a los que puedes ir. Tócalos para avanzar. Toca el punto anterior para devolverte.</p><p>Mientras avanzas verás <b>tus km acumulados</b> sobre cada punto y la suma completa en el panel. Al llegar al rojo, dale a <b>Comprobar</b>.</p>`},
+  {t: 'El modelo (como en Solver)', b: `<p>En la pestaña <b>Modelo</b> ves tu ruta como un problema de programación lineal:</p><p>• Cada tramo es una variable <b>x = 1</b> si lo usas o <b>0</b> si no.<br>• La <b>función objetivo</b> suma los km de los tramos en 1.<br>• La regla de <b>flujo</b> (sale − entra): origen = 1, destino = −1 y los demás = 0, o sea, <b>si entras a un punto, tienes que salir</b>.</p>`},
+  {t: 'El algoritmo paso a paso', b: `<p>Al comprobar, abre la pestaña <b>Algoritmo</b> para ver cómo se encuentra la ruta óptima con <b>Dijkstra</b>: arranca en el origen, siempre revisa el punto más cercano y va actualizando las distancias de sus vecinos.</p><p>Es otra forma de resolver el mismo problema que el Solver con Simplex: ¡los dos llegan a la misma respuesta!</p>`}
+];
+let tI = 0;
+function showTuto(i) {
+  tI = i; const s = TUTO[i];
+  $('tStep').textContent = `Tutorial · ${i + 1} de ${TUTO.length}`; $('tTitle').textContent = s.t; $('tBody').innerHTML = s.b;
+  $('tDots').innerHTML = TUTO.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('');
+  $('tPrev').disabled = i === 0; $('tNextBtn').textContent = i === TUTO.length - 1 ? '¡A jugar!' : 'Siguiente';
+  $('tuto').classList.remove('hidden');
+}
+const closeTuto = () => { $('tuto').classList.add('hidden'); try { localStorage.setItem('ro_tuto', '1'); } catch (e) {} };
+$('tPrev').onclick = () => showTuto(Math.max(0, tI - 1));
+$('tNextBtn').onclick = () => tI === TUTO.length - 1 ? closeTuto() : showTuto(tI + 1);
+$('tSkip').onclick = closeTuto;
+$('btnTuto').onclick = () => showTuto(0);
+$('btnTutoHome').onclick = () => showTuto(0);
 
 /* ---------- start screen ---------- */
 function bounds(C) {
@@ -190,8 +332,7 @@ CITIES.forEach((C, ci) => {
   const b = document.createElement('button'); b.className = 'card-city';
   const [x0, y0, x1, y1] = bounds(C); const pad = 60;
   const lvl = C.nodes.length <= 16 ? 1 : C.nodes.length <= 18 ? 2 : 3;
-  const lvlTxt = ['', 'Fácil', 'Medio', 'Difícil'][lvl];
-  b.innerHTML = `<div class="thumb"></div><div class="info"><h3>${C.city}</h3><div class="dep">${C.dept}</div><div class="meta"><span class="chip lvl-${lvl}">${lvlTxt}</span><span class="chip">${C.nodes.length} puntos</span><span class="chip">${C.edges.length} tramos</span></div></div>`;
+  b.innerHTML = `<div class="thumb"></div><div class="info"><h3>${C.city}</h3><div class="dep">${C.dept}</div><div class="meta"><span class="chip lvl-${lvl}">${['', 'Fácil', 'Medio', 'Difícil'][lvl]}</span><span class="chip">${C.nodes.length} puntos</span><span class="chip">${C.edges.length} tramos</span></div></div>`;
   const s = el('svg', {viewBox: `${x0 - pad} ${y0 - pad} ${x1 - x0 + 2 * pad} ${y1 - y0 + 2 * pad}`, preserveAspectRatio: 'xMidYMid meet'});
   const f = Math.max(x1 - x0, y1 - y0) / 700;
   C.outline.forEach(p => el('path', {d: pathD(p, true), fill: '#22394a', stroke: '#9fb3c0', 'stroke-width': 3 * f}, s));
@@ -202,8 +343,8 @@ CITIES.forEach((C, ci) => {
   $('cards').appendChild(b);
 });
 
-/* ---------- game ---------- */
-let C, N, adj, gYou, gOpt, edgeEls, nodeEls, POOL, O, D, path, best, done, lastIdx;
+/* ---------- game state ---------- */
+let C, N, adj, gYou, gOpt, gAlgo, edgeEls, nodeEls, POOL, O, D, path, best, done, lastIdx, STEPS, sIdx, autoT, tab = 'ruta';
 function dijkstra(s, t, A = adj) {
   const d = N.map(() => Infinity), p = N.map(() => -1), used = N.map(() => false); d[s] = 0;
   for (;;) { let u = -1; for (let i = 0; i < N.length; i++) if (!used[i] && (u < 0 || d[i] < d[u])) u = i;
@@ -211,6 +352,29 @@ function dijkstra(s, t, A = adj) {
     for (const e of A[u]) if (d[u] + e.w < d[e.to] - 1e-9) { d[e.to] = d[u] + e.w; p[e.to] = u; } }
   const path = []; if (d[t] < Infinity) for (let v = t; v >= 0; v = p[v]) path.unshift(v);
   return {dist: d[t], path};
+}
+// Dijkstra con registro de cada paso, para enseñarlo
+function dijkstraSteps(s, t) {
+  const d = N.map(() => Infinity), p = N.map(() => -1), used = N.map(() => false); d[s] = 0;
+  const steps = [{u: -1, d: d.slice(), p: p.slice(), used: used.slice(), relax: [], msg: `Arrancamos en <b>${N[s].name}</b> con distancia <b>0 km</b>. Todos los demás puntos empiezan en <b>∞</b> (aún no sabemos cómo llegar).`}];
+  for (;;) {
+    let u = -1; for (let i = 0; i < N.length; i++) if (!used[i] && d[i] < Infinity && (u < 0 || d[i] < d[u])) u = i;
+    if (u < 0) break; used[u] = true;
+    const relax = [];
+    for (const e of adj[u]) {
+      if (used[e.to]) continue;
+      const nd = d[u] + e.w, old = d[e.to], better = nd < old - 1e-9;
+      relax.push({v: e.to, w: e.w, nd, old, better, ei: e.i});
+      if (better) { d[e.to] = nd; p[e.to] = u; }
+    }
+    let msg = `Revisamos <b>${N[u].name}</b> (el más cercano sin revisar: <b>${fmt(d[u])}</b>).`;
+    if (u === t) msg += `<br>¡Es el destino! Su distancia ya es definitiva: <b>${fmt(d[u])}</b>. Siguiendo "viene de" hacia atrás obtenemos la ruta óptima.`;
+    else if (!relax.length) msg += '<br>Todos sus vecinos ya fueron revisados.';
+    else msg += '<br>' + relax.map(r => `${N[r.v].name}: ${n1(d[u])} + ${n1(r.w)} = <b>${n1(r.nd)}</b> ${r.better ? (r.old === Infinity ? '→ primera vez, se anota' : `→ mejor que ${n1(r.old)}, se actualiza`) : `→ no mejora (${n1(r.old)})`}`).join('<br>');
+    steps.push({u, d: d.slice(), p: p.slice(), used: used.slice(), relax, msg});
+    if (u === t) break;
+  }
+  return steps;
 }
 function secondBest(s, t, base) {
   let alt = Infinity;
@@ -221,8 +385,8 @@ function secondBest(s, t, base) {
 }
 const PLACED = [];
 function placeLabel(i) {
-  const n = N[i]; const opts = [[16, 5, 'start'], [-16, 5, 'end'], [0, -18, 'middle'], [0, 28, 'middle'], [14, -14, 'start'], [-14, -14, 'end'], [14, 22, 'start'], [-14, 22, 'end']];
-  const w = n.name.length * 8 * C.f, h = 14 * C.f; let best = null, bs = -1;
+  const n = N[i]; const opts = [[16, 5, 'start'], [-16, 5, 'end'], [0, -20, 'middle'], [0, 30, 'middle'], [14, -16, 'start'], [-14, -16, 'end'], [14, 24, 'start'], [-14, 24, 'end']];
+  const w = n.name.length * 8 * C.f, h = 14 * C.f; let best = null, bs = -1e9;
   const mids = C.edges.map(([a, b]) => [(N[a].x + N[b].x) / 2, (N[a].y + N[b].y) / 2]);
   for (const [dx, dy, an] of opts) {
     const ox = n.x + dx * C.f, oy = n.y + dy * C.f; const cx = an === 'start' ? ox + w / 2 : an === 'end' ? ox - w / 2 : ox; const cy = oy - h / 3;
@@ -236,23 +400,21 @@ function placeLabel(i) {
   return best;
 }
 function openCity(ci) {
-  C = CITIES[ci]; N = C.nodes; lastIdx = -1;
+  C = CITIES[ci]; N = C.nodes; lastIdx = -1; PLACED.length = 0;
   adj = N.map(() => []); C.edges.forEach(([a, b, w], i) => { adj[a].push({to: b, w, i}); adj[b].push({to: a, w, i}); });
   const [x0, y0, x1, y1] = bounds(C);
   C.f = Math.max(x1 - x0, y1 - y0) / 760;
-  const pad = 70 * C.f;
-  PLACED.length = 0;
   $('home').classList.add('hidden'); $('game').classList.remove('hidden');
   const svg = $('map'); svg.innerHTML = '';
-  svg.setAttribute('viewBox', `${x0 - pad - 60 * C.f} ${y0 - pad} ${x1 - x0 + 2 * pad + 160 * C.f} ${y1 - y0 + 2 * pad}`);
+  svg.setAttribute('viewBox', `${x0 - 100 * C.f} ${y0 - 100 * C.f} ${x1 - x0 + 200 * C.f} ${y1 - y0 + 200 * C.f}`);
   svg.style.setProperty('--f', C.f);
-  const gBase = el('g', {}, svg), gEdges = el('g', {}, svg); gYou = el('g', {}, svg); gOpt = el('g', {}, svg); const gKm = el('g', {}, svg), gNodes = el('g', {}, svg);
+  const gBase = el('g', {}, svg), gEdges = el('g', {}, svg); gAlgo = el('g', {}, svg); gYou = el('g', {}, svg); gOpt = el('g', {}, svg); const gKm = el('g', {}, svg), gNodes = el('g', {}, svg);
   C.outline.forEach(p => el('path', {class: 'city', d: pathD(p, true)}, gBase));
   C.roads.forEach(([t, pts]) => el('path', {class: 'road-' + t, d: pathD(pts)}, gBase));
   edgeEls = C.edges.map(([a, b, w]) => {
     const A = N[a], B = N[b];
     const line = el('line', {class: 'edge', x1: A.x, y1: A.y, x2: B.x, y2: B.y}, gEdges);
-    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, txt = w.toFixed(1).replace('.', ','), wd = (10 + txt.length * 7.5) * C.f;
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, txt = n1(w), wd = (10 + txt.length * 7.5) * C.f;
     el('rect', {class: 'kmbg', x: mx - wd / 2, y: my - 10 * C.f, width: wd, height: 20 * C.f, rx: 6 * C.f}, gKm);
     el('text', {class: 'km', x: mx, y: my + 0.5 * C.f}, gKm).textContent = txt;
     return line;
@@ -264,8 +426,9 @@ function openCity(ci) {
     el('circle', {class: 'hit', cx: n.x, cy: n.y, r: 20 * C.f}, g);
     const [lx, ly, an] = placeLabel(i);
     const t = el('text', {x: lx, y: ly, 'text-anchor': an}, g); t.textContent = n.name;
+    const badge = el('text', {class: 'acc', x: n.x, y: n.y - 16 * C.f}, g);
     g.addEventListener('click', () => clickNode(i));
-    return {g, t};
+    return {g, t, badge};
   });
   const bb = gNodes.getBBox(), pp = 30 * C.f;
   svg.setAttribute('viewBox', `${bb.x - pp} ${bb.y - pp} ${bb.width + 2 * pp} ${bb.height + 2 * pp}`);
@@ -276,20 +439,26 @@ function openCity(ci) {
     if (r.path.length < minT) continue;
     if (secondBest(s, t, r.path) - r.dist >= 0.3) POOL.push([s, t]);
   }
-  $('citySub').textContent = `${C.city}, ${C.dept} · ¿Puedes encontrar el camino más corto?`;
+  $('citySub').textContent = `${C.city}, ${C.dept}`;
+  $('nArcs').textContent = C.edges.length;
   document.title = `Ruta Óptima — ${C.city}`;
   window.scrollTo(0, 0);
   newPuzzle();
+  let seen = false; try { seen = localStorage.getItem('ro_tuto') === '1'; } catch (e) {}
+  if (!seen) showTuto(0);
 }
 function newPuzzle() {
   let k; do { k = Math.floor(Math.random() * POOL.length); } while (POOL.length > 1 && k === lastIdx);
-  lastIdx = k; [O, D] = POOL[k]; best = dijkstra(O, D); reset();
+  lastIdx = k; [O, D] = POOL[k]; best = dijkstra(O, D); STEPS = dijkstraSteps(O, D); reset();
 }
-function reset() { path = [O]; done = false; $('overlay').classList.remove('show'); gOpt.innerHTML = ''; render(); }
+function reset() { stopAuto(); path = [O]; done = false; sIdx = -1; $('result').classList.add('hidden'); gOpt.innerHTML = ''; gAlgo.innerHTML = ''; setTab('ruta'); render(); }
 const edgeW = (a, b) => { const e = adj[a].find(e => e.to === b); return e ? e.w : null; };
-const total = () => { let s = 0; for (let k = 0; k < path.length - 1; k++) s += edgeW(path[k], path[k + 1]); return s; };
+const edgeIdx = (a, b) => { const e = adj[a].find(e => e.to === b); return e ? e.i : -1; };
+const acc = k => { let s = 0; for (let j = 0; j < k; j++) s += edgeW(path[j], path[j + 1]); return s; };
+const total = () => acc(path.length - 1);
 function clickNode(i) {
   if (done) return;
+  if (tab === 'algo') setTab('ruta');
   const last = path[path.length - 1];
   if (path.length > 1 && i === path[path.length - 2]) { path.pop(); render(); return; }
   if (last === D || edgeW(last, i) === null || path.includes(i)) return;
@@ -298,20 +467,62 @@ function clickNode(i) {
 const poly = (p, cls, parent) => { if (p.length > 1) el('path', {class: cls, d: 'M' + p.map(i => N[i].x + ',' + N[i].y).join('L')}, parent); };
 function render() {
   const last = path[path.length - 1];
+  const algoOn = sIdx >= 0;
   const avail = new Set(done || last === D ? [] : adj[last].filter(e => !path.includes(e.to)).map(e => e.to));
-  edgeEls.forEach((ln, idx) => { const [a, b] = C.edges[idx]; ln.classList.toggle('avail', (a === last && avail.has(b)) || (b === last && avail.has(a))); });
-  nodeEls.forEach(({g, t}, i) => {
-    g.setAttribute('class', 'node' + (i === O ? ' start' : i === D ? ' end' : path.includes(i) ? ' inpath' : '') + (avail.has(i) ? ' clickable' : ''));
-    t.setAttribute('class', (i === O || i === D) ? 'big' : '');
+  const st = algoOn ? STEPS[sIdx] : null;
+  edgeEls.forEach((ln, idx) => {
+    const [a, b] = C.edges[idx];
+    ln.classList.toggle('avail', !algoOn && ((a === last && avail.has(b)) || (b === last && avail.has(a))));
+    ln.classList.toggle('relax', !!(st && st.relax.some(r => r.ei === idx)));
   });
-  gYou.innerHTML = ''; poly(path, 'youpath', gYou);
+  nodeEls.forEach(({g, t, badge}, i) => {
+    let cls = 'node';
+    if (algoOn) { cls += i === O ? ' start' : i === D ? ' end' : ''; if (st.used[i]) cls += ' visited'; if (st.u === i) cls += ' current'; }
+    else { cls += (i === O ? ' start' : i === D ? ' end' : path.includes(i) ? ' inpath' : '') + (avail.has(i) ? ' clickable' : ''); }
+    g.setAttribute('class', cls);
+    t.setAttribute('class', (i === O || i === D) ? 'big' : '');
+    if (algoOn) { badge.setAttribute('class', 'dist'); badge.textContent = st.d[i] === Infinity ? '∞' : n1(st.d[i]); }
+    else { badge.setAttribute('class', 'acc'); const k = path.indexOf(i); badge.textContent = k > 0 ? n1(acc(k)) : ''; }
+  });
+  gYou.innerHTML = ''; if (!algoOn) poly(path, 'youpath', gYou);
+  gAlgo.innerHTML = '';
+  if (st) { st.p.forEach((pv, v) => { if (pv >= 0) poly([pv, v], 'treepath', gAlgo); }); }
   $('oName').textContent = N[O].name; $('dName').textContent = N[D].name;
+  // ---- Tu ruta
   const ol = $('routeList'); ol.innerHTML = '';
-  path.forEach((i, k) => { const li = document.createElement('li'); li.innerHTML = N[i].name + (k ? ' <span>+' + fmt(edgeW(path[k - 1], i)) + '</span>' : ''); ol.appendChild(li); });
+  path.forEach((i, k) => { const li = document.createElement('li'); li.innerHTML = N[i].name + (k ? ` <span>+${fmt(edgeW(path[k - 1], i))} → ${fmt(acc(k))}</span>` : ' <span>(inicio, 0 km)</span>'); ol.appendChild(li); });
+  const terms = path.slice(1).map((v, k) => n1(edgeW(path[k], v)));
+  $('calc').innerHTML = terms.length ? `Z = ${terms.join(' + ')} = <span class="z">${fmt(total())}</span>` : 'Z = 0 km (aún no te mueves)';
   $('total').textContent = fmt(total());
+  const nx = $('nextList'); nx.innerHTML = '';
+  if (last === D || done) { $('nextCard').classList.add('hidden'); }
+  else {
+    $('nextCard').classList.remove('hidden');
+    const opts = adj[last].filter(e => !path.includes(e.to)).sort((a, b) => a.w - b.w);
+    nx.innerHTML = opts.length ? opts.map(e => `<div><span>${N[e.to].name}</span><span>${n1(total())} + ${n1(e.w)} = ${n1(total() + e.w)}</span></div>`).join('') : '<div><span>Sin salida: devuélvete un paso</span><span></span></div>';
+  }
   $('btnCheck').disabled = !(last === D) || done;
   $('btnUndo').disabled = path.length < 2 || done;
-  $('hint').textContent = last === D && !done ? '¡Llegaste! Dale a "Comprobar" para ver si es la ruta más corta.' : 'Arranca en el punto verde. Toca los puntos amarillos para avanzar por las vías y llegar al punto rojo usando la ruta más corta. Toca el punto anterior para devolverte.';
+  // ---- Modelo
+  const used = path.slice(1).map((v, k) => [path[k], v]);
+  $('nOnes').textContent = used.length;
+  $('xlist').innerHTML = used.length ? used.map(([a, b]) => `x(${N[a].id},${N[b].id}) = 1 · ${fmt(edgeW(a, b))}`).join('<br>') + `<br><span style="color:#93a8b6">Los otros ${C.edges.length - used.length} tramos = 0</span>` : '<span style="color:#93a8b6">Todos los tramos están en 0</span>';
+  $('zcalc').innerHTML = used.length ? `Min Z = ${used.map(([a, b]) => `${n1(edgeW(a, b))}·1`).join(' + ')} + (resto)·0 = <span class="z">${fmt(total())}</span>` : 'Min Z = 0';
+  const rows = []; const shown = new Set([O, D, ...path]);
+  let allOk = true;
+  [...shown].forEach(i => {
+    const out = used.filter(([a]) => a === i).length, inn = used.filter(([, b]) => b === i).length, fl = out - inn;
+    const must = i === O ? 1 : i === D ? -1 : 0, ok = fl === must; if (!ok) allOk = false;
+    rows.push(`<tr><td>${N[i].id}</td><td class="n">${out}</td><td class="n">${inn}</td><td class="n">${fl}</td><td class="n">${must}</td><td class="n ${ok ? 'ok' : 'bad'}">${ok ? '✓' : '✗'}</td></tr>`);
+  });
+  $('flowBody').innerHTML = rows.join('');
+  $('flowNote').innerHTML = allOk ? `<span class="ok">✓ Se cumplen todas las restricciones:</span> tu ruta es un camino completo de ${N[O].name} a ${N[D].name}. Los demás puntos tienen flujo 0 = 0.`
+    : (path.length === 1 ? 'Aún no hay ruta: el origen debería dar 1 y el destino −1.' : `<span class="bad">✗ Falta completar:</span> en <b>${N[last].name}</b> entraste pero no has salido (flujo −1 ≠ 0). Por eso el modelo te obliga a seguir hasta el destino.`);
+  // ---- map tip
+  $('maptip').innerHTML = algoOn ? `Paso ${sIdx} de ${STEPS.length - 1} · los números <b style="color:#5ab0ff">azules</b> son la mejor distancia conocida desde el origen.`
+    : done ? 'Abre la pestaña <b>Algoritmo</b> para ver cómo se encontró la ruta óptima.'
+    : last === D ? '¡Llegaste! Dale a <b>Comprobar</b>.'
+    : `Estás en <b>${N[last].name}</b> con <b>${fmt(total())}</b>. Toca un punto amarillo para avanzar.`;
 }
 function check() {
   done = true; render(); poly(best.path, 'optpath', gOpt);
@@ -321,14 +532,45 @@ function check() {
   $('rYou').innerHTML = 'Tu ruta: <b>' + fmt(you) + '</b>';
   $('rOpt').innerHTML = win ? 'Encontraste la ruta más corta.' : 'Ruta óptima: <b>' + fmt(best.dist) + '</b> (te pasaste ' + fmt(you - best.dist) + ')';
   $('btnRetry').style.display = win ? 'none' : '';
-  $('overlay').classList.add('show');
 }
+/* ---------- algorithm stepper ---------- */
+function drawStep() {
+  const st = STEPS[sIdx];
+  $('stepbox').innerHTML = `<b>Paso ${sIdx} de ${STEPS.length - 1}</b><br>${st.msg}`;
+  const order = N.map((_, i) => i).filter(i => st.d[i] < Infinity).sort((a, b) => st.d[a] - st.d[b]);
+  $('algoBody').innerHTML = order.map(i => `<tr class="${st.u === i ? 'cur' : ''}"><td>${N[i].name}</td><td class="n mono">${n1(st.d[i])}</td><td>${st.p[i] >= 0 ? N[st.p[i]].id : '—'}</td><td class="n">${st.used[i] ? '✓' : '…'}</td></tr>`).join('') + `<tr><td colspan="4" style="color:#93a8b6">Puntos sin alcanzar todavía: ${N.length - order.length} (∞)</td></tr>`;
+  $('sPrev').disabled = sIdx <= 0; $('sNext').textContent = sIdx >= STEPS.length - 1 ? 'Listo ✓' : 'Siguiente'; $('sNext').disabled = sIdx >= STEPS.length - 1;
+  gOpt.innerHTML = '';
+  if (sIdx === STEPS.length - 1) poly(best.path, 'optpath', gOpt);
+  render();
+}
+function startAlgo() { setTab('algo'); if (sIdx < 0) sIdx = 0; drawStep(); }
+function stopAuto() { if (autoT) { clearInterval(autoT); autoT = null; $('sAuto').textContent = 'Auto'; } }
+$('sNext').onclick = () => { if (sIdx < 0) return startAlgo(); if (sIdx < STEPS.length - 1) { sIdx++; drawStep(); } };
+$('sPrev').onclick = () => { stopAuto(); if (sIdx > 0) { sIdx--; drawStep(); } };
+$('sEnd').onclick = () => { stopAuto(); if (sIdx < 0) setTab('algo'); sIdx = STEPS.length - 1; drawStep(); };
+$('sAuto').onclick = () => {
+  if (autoT) return stopAuto();
+  if (sIdx < 0) startAlgo();
+  $('sAuto').textContent = '⏸ Pausa';
+  autoT = setInterval(() => { if (sIdx >= STEPS.length - 1) return stopAuto(); sIdx++; drawStep(); }, 1500);
+};
+$('btnAlgo').onclick = startAlgo;
+/* ---------- tabs ---------- */
+function setTab(t) {
+  tab = t;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  ['ruta', 'modelo', 'algo'].forEach(k => $('pane-' + k).classList.toggle('hidden', k !== t));
+  if (t !== 'algo') { stopAuto(); if (sIdx >= 0) { sIdx = -1; gOpt.innerHTML = ''; if (done) poly(best.path, 'optpath', gOpt); } }
+  if (N) render();
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { setTab(b.dataset.t); if (b.dataset.t === 'algo' && done && sIdx < 0) startAlgo(); });
 $('btnUndo').onclick = () => { if (path.length > 1) { path.pop(); render(); } };
 $('btnReset').onclick = reset;
 $('btnCheck').onclick = check;
 $('btnNext').onclick = newPuzzle;
 $('btnRetry').onclick = reset;
-$('btnBack').onclick = () => { $('game').classList.add('hidden'); $('home').classList.remove('hidden'); document.title = 'Ruta Óptima — Colombia'; };
+$('btnBack').onclick = () => { stopAuto(); $('game').classList.add('hidden'); $('home').classList.remove('hidden'); document.title = 'Ruta Óptima — Colombia'; };
 </script>
 </body>
 </html>
